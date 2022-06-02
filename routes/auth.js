@@ -18,9 +18,8 @@ router.post("/Register", async (req, res, next) => {
       email: req.body.email, //,
       // profilePic: req.body.profilePic
     };
-    let user = await DButils.execQuery(
-      `SELECT mydb.username FROM users WHERE user_name = '${user_Details.username}'`
-    );
+    let select_query = `SELECT * FROM users WHERE user_name = '${user_details.username}'`;
+    let user = await DButils.execQuery(select_query);
     if (user.length != 0) throw { status: 409, message: "Username taken" };
 
     // add the new username
@@ -28,10 +27,8 @@ router.post("/Register", async (req, res, next) => {
       user_details.password,
       parseInt(process.env.bcrypt_saltRounds)
     );
-    await DButils.execQuery(
-      `INSERT INTO mydb.users VALUES (0, '${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
-      '${user_details.country}', '${hash_password}', '${user_details.email}')`
-    );
+    let insert_query = `INSERT INTO users VALUES (0, '${user_details.username}', '${user_details.firstname}', '${user_details.lastname}', '${user_details.country}', '${hash_password}', '${user_details.email}')`;
+    await DButils.execQuery(insert_query);
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
     next(error);
@@ -40,20 +37,15 @@ router.post("/Register", async (req, res, next) => {
 
 router.post("/Login", async (req, res, next) => {
   try {
-    let hash_password = bcrypt.hashSync(
-      req.body.password,
-      parseInt(process.env.bcrypt_saltRounds)
-    );
     // check that username exists
-    const user = await DButils.execQuery(
-      `SELECT username FROM mydb.users WHERE user_name = '${req.body.username}' AND password = '${hash_password}'`
-    );
-    if (user.length != 0) {
+    let query = `SELECT * FROM users WHERE user_name = '${req.body.username}'`;
+    const user = await DButils.execQuery(query);
+    if (user.length != 1 || !bcrypt.compareSync(req.body.password, user[0].password)) {
       throw { status: 401, message: "Username or Password incorrect" };
     } else {
       // TODO: add user uuid for each login
       // Set cookie
-      req.session.user_id = user[0].user_id;
+      req.session.user_id = user[0].id;
       // return cookie
       res.status(200).send({ message: "login succeeded", success: true });
     }
