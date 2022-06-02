@@ -2,11 +2,11 @@ CREATE SCHEMA `mydb` ;
 
 CREATE TABLE `mydb`.`users` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `user_name` VARCHAR(45) NOT NULL,
+  `user_name` VARCHAR(45) NOT NULL UNIQUE,
   `first_name` VARCHAR(45) NULL,
   `last_name` VARCHAR(45) NULL,
   `country` VARCHAR(45) NULL,
-  `password` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(100) NOT NULL,
   `email` VARCHAR(45) NULL,
   PRIMARY KEY (`id`));
 
