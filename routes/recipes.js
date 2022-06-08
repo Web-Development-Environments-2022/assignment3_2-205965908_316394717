@@ -3,7 +3,26 @@ var router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
 const user_utils = require("./utils/user_utils");
 
-router.get("/", (req, res) => res.send("im here"));
+// router.get("/", (req, res) => res.send("im here"));
+
+router.get("/", async (req, res, next) => {
+  try {
+    let search_details = {
+      query: req.params.query,
+      cuisine: req.params.cuisine,
+      diet: req.params.diet,
+      intolerances: req.params.intolerance,
+      sort: req.params.sortBy,
+      sortDirection: req.params.sortDirection,
+      offset: req.params.skip,
+      number: req.params.limit,
+    };
+    const recipes = await recipes_utils.searchRecipes(search_details);
+    res.send(recipes.recipes);
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * This path returns a full details of a recipe by its id

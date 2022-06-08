@@ -6,8 +6,6 @@ const api_domain = "https://api.spoonacular.com/recipes";
  * Get recipes list from spooncular response and extract the relevant recipe data for preview
  * @param {*} recipes_info 
  */
-
-
 async function getRecipeInformation(recipe_id) {
     return await axios.get(`${api_domain}/${recipe_id}/information`, {
         params: {
@@ -31,7 +29,6 @@ async function getRecipeDetails(recipe_id) {
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
-        
     }
 }
 
@@ -49,9 +46,16 @@ async function getRandomRecipes(num) {
 }
 
 
+async function searchRecipes(search_details) {
+    return await axios.get(`${api_domain}/complexSearch`, {
+        params: search_details //TODO: check if worked fine, what about nulls?
+    });
+}
+
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRecipesPreview = getRecipesPreview;
 exports.getRandomRecipes = getRandomRecipes;
+exports.searchRecipes = searchRecipes;
 
 
