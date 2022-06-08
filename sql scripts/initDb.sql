@@ -20,48 +20,24 @@ CREATE TABLE `mydb`.`users` (
   `is_gluten_free` TINYINT NULL,
   PRIMARY KEY (`id`));
 
-  CREATE TABLE `mydb`.`likes` (
+CREATE TABLE `mydb`.`viewed_recipes` (
   `user_id` INT NOT NULL,
   `recipe_id` INT NOT NULL,
-  PRIMARY KEY (`user_id`, `recipe_id`),
-  CONSTRAINT `likes_user_id`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `mydb`.`users` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `likes_recipe_id`
-    FOREIGN KEY (`recipe_id`)
-    REFERENCES `mydb`.`recipes` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-
-CREATE TABLE `mydb`.`views` (
-  `user_id` INT NOT NULL,
-  `recipe_id` INT NOT NULL,
+  `date` DATETIME NOT NULL,
   PRIMARY KEY (`user_id`, `recipe_id`),
   CONSTRAINT `views_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `mydb`.`users` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `views_recipe_id`
-    FOREIGN KEY (`recipe_id`)
-    REFERENCES `mydb`.`recipes` (`id`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
-CREATE TABLE `mydb`.`favorites` (
+CREATE TABLE `mydb`.`favorite_recipes` (
   `user_id` INT NOT NULL,
   `recipe_id` INT NOT NULL,
   PRIMARY KEY (`user_id`, `recipe_id`),
   CONSTRAINT `favorites_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `mydb`.`users` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `favorites_recipe_id`
-    FOREIGN KEY (`recipe_id`)
-    REFERENCES `mydb`.`recipes` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
