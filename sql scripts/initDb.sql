@@ -3,21 +3,22 @@ CREATE SCHEMA `mydb` ;
 CREATE TABLE `mydb`.`users` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_name` VARCHAR(45) NOT NULL UNIQUE,
-  `first_name` VARCHAR(45) NULL,
-  `last_name` VARCHAR(45) NULL,
-  `country` VARCHAR(45) NULL,
+  `first_name` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
+  `country` VARCHAR(45) NOT NULL,
   `password` VARCHAR(100) NOT NULL,
-  `email` VARCHAR(45) NULL,
+  `email` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`));
 
   CREATE TABLE `mydb`.`recipes` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `image_path` VARCHAR(45) NULL,
-  `title` VARCHAR(45) NULL,
-  `making_time` INT NULL,
-  `is_vegetarian` TINYINT NULL,
-  `is_vegan` TINYINT NULL,
-  `is_gluten_free` TINYINT NULL,
+  `title` VARCHAR(45) NOT NULL,
+  `making_time` INT NOT NULL,
+  `is_vegetarian` TINYINT NOT NULL,
+  `is_vegan` TINYINT NOT NULL,
+  `is_gluten_free` TINYINT NOT NULL,
+  `servings` INT NOT NULL,
   PRIMARY KEY (`id`));
 
 CREATE TABLE `mydb`.`viewed_recipes` (
