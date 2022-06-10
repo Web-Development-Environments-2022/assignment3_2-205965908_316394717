@@ -1,7 +1,9 @@
 var express = require("express");
 var router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
+const recipes_db_utils = require("./utils/recipes_db_utils");
 const user_utils = require("./utils/user_utils");
+const { RecipeInsertDto } = require("./dto/RecipeInsertDto");
 
 // router.get("/", (req, res) => res.send("im here"));
 
@@ -19,6 +21,30 @@ router.get("/", async (req, res, next) => {
     };
     const recipes = await recipes_utils.searchRecipes(search_details);
     res.send(recipes.recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/", async (req, res, next) => {
+  try {
+    let recipe = new RecipeInsertDto(
+      req.body.id,
+      req.body.title,
+      req.body.readyInMinutes,
+      req.body.popularity,
+      req.body.vegetarian,
+      req.body.vegan,
+      req.body.glutenFree,
+      req.body.image,
+      req.body.inventedBy,
+      req.body.serveDay,
+      req.body.servings,
+      req.body.instructions
+    );
+
+    await recipes_db_utils.addRecipe(recipe);
+    res.status(201).send(recipe);
   } catch (error) {
     next(error);
   }
@@ -65,14 +91,16 @@ router.get("/viewed", async (req, res, next) => {
   }
 });
 
-
 /**
  * This path returns the top N last viewed recipes by the logged-in user
  */
- router.get("/viewed/:num", async (req, res, next) => {
+router.get("/viewed/:num", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    const recipes_id = await user_utils.getLastViewedRecipes(user_id, req.params.num);
+    const recipes_id = await user_utils.getLastViewedRecipes(
+      user_id,
+      req.params.num
+    );
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
     const results = await recipe_utils.getRecipesPreview(recipes_id_array);

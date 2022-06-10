@@ -12,14 +12,20 @@ CREATE TABLE `mydb`.`users` (
 
   CREATE TABLE `mydb`.`recipes` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `image_path` VARCHAR(45) NULL,
+  `user_id` INT NOT NULL,
   `title` VARCHAR(45) NOT NULL,
-  `making_time` INT NOT NULL,
-  `is_vegetarian` TINYINT NOT NULL,
-  `is_vegan` TINYINT NOT NULL,
-  `is_gluten_free` TINYINT NOT NULL,
+  `ready_in_minutes` INT NOT NULL,
+  `vegetarian` TINYINT NOT NULL,
+  `vegan` TINYINT NOT NULL,
+  `gluten_free` TINYINT NOT NULL,
   `servings` INT NOT NULL,
-  PRIMARY KEY (`id`));
+  `image_path` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `recipes_user_id`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `mydb`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 CREATE TABLE `mydb`.`viewed_recipes` (
   `user_id` INT NOT NULL,
