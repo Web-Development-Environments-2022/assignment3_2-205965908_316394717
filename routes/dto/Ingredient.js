@@ -8,4 +8,4 @@ class Ingredient {
   }
 }
 
-export { Ingredient };
+exports.Ingredient = Ingredient;

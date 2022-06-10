@@ -14,4 +14,4 @@ class RecipeInsertDto {
     }
 }
 
-export {RecipeInsertDto};
+exports.RecipeInsertDto = RecipeInsertDto;

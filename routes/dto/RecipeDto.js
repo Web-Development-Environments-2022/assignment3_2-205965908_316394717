@@ -14,5 +14,4 @@ class RecipeDto {
         this.instructions = instructions;
     }
 }
-
-export {RecipeDto};
+exports.RecipeDto = RecipeDto;

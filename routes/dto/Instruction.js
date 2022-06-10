@@ -7,4 +7,4 @@ class Instruction {
   }
 }
 
-export { Instruction };
+exports.Instruction = Instruction;

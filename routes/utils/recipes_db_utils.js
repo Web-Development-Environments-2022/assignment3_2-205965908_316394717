@@ -1,7 +1,11 @@
-import { RecipeDto } from "../dto/RecipeDto";
-import { Instruction } from "../dto/Instruction";
-import { Ingredient } from "../dto/Ingredient";
-import { Equipment } from "../dto/Equipment";
+// import { RecipeDto } from "../dto/RecipeDto";
+// import { Instruction } from "../dto/Instruction";
+// import { Ingredient } from "../dto/Ingredient";
+// import { Equipment } from "../dto/Equipment";
+const RecipeDto = require("../dto/RecipeDto");
+const Instruction = require("../dto/Instruction");
+const Ingredient = require("../dto/Ingredient");
+const Equipment = require("../dto/Equipment");
 
 const DButils = require("./DButils");
 
@@ -126,4 +130,5 @@ async function getMyRecipe(user_id) {
   return results;
 }
 
-export { addRecipe, getMyRecipe };
+exports.addRecipe = addRecipe;
+exports.getMyRecipe = getMyRecipe;

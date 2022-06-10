@@ -5,5 +5,4 @@ class Equipment {
     this.image = image;
   }
 }
-
-export { Equipment };
+exports.Equipment = Equipment;
