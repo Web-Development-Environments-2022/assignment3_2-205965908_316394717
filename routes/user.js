@@ -31,6 +31,7 @@ router.post("/favorites", async (req, res, next) => {
     const recipe_id = req.body.recipeId;
     await user_utils.markAsFavorite(user_id, recipe_id);
     res.status(201).send("The Recipe successfully saved as favorite");
+    //TODO: handle double favorite - alrady favorite
   } catch (error) {
     next(error);
   }
@@ -53,11 +54,11 @@ router.delete("/favorites", async (req, res, next) => {
 router.get("/me", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    let user = await user_utils.getUser(user_id);
+    let user = (await user_utils.getUser(user_id))[0];
     if (!user) {
       res.status(404).send();
     } else {
-      user.password = "";
+      user.password = 'its a secret';
       res.status(202).send(user);
     }
   } catch (error) {

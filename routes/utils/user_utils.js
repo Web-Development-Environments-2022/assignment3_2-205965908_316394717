@@ -22,7 +22,7 @@ async function getFavoriteRecipes(user_id) {
 }
 
 async function markAsViewed(user_id, recipe_id) {
-  let query = `REPLACE INTO viewed_recipes VALUES ('${user_id}', ${recipe_id}, NOW())`;
+  let query = `REPLACE INTO viewed_recipes VALUES (${user_id}, ${recipe_id}, NOW())`;
   await DButils.execQuery(query);
 }
 
