@@ -126,4 +126,17 @@ router.get("/favorites", async (req, res, next) => {
   }
 });
 
+/**
+ * This path returns the user written recipes in the DB
+ */
+router.get("/my", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const recipes = await recipes_db_utils.getMyRecipe(user_id);
+    res.status(200).send(recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
