@@ -8,7 +8,7 @@ const api_domain = "https://api.spoonacular.com/recipes";
 async function getRecipeInformation(recipe_id) {
   return await axios.get(`${api_domain}/${recipe_id}/information`, {
     params: {
-      apiKey: process.env.spooncular_apiKey,
+      apiKey: process.env.APOONCULAR_API_KEY,
       includeNutrition: false,
     },
   });
@@ -21,7 +21,7 @@ async function getRecipeInformation(recipe_id) {
 async function getRecipeInformationBulk(recipes_ids) {
   return await axios.get(`${api_domain}/informationBulk`, {
     params: {
-      apiKey: process.env.spooncular_apiKey,
+      apiKey: process.env.APOONCULAR_API_KEY,
       ids: recipes_ids.join(),
     },
   });
@@ -49,7 +49,7 @@ async function getRecipesPreview(recipes_id_array) {
 async function getRandomRecipes(num) {
   let data =  await axios.get(`${api_domain}/random`, {
     params: {
-      apiKey: process.env.spooncular_apiKey,
+      apiKey: process.env.APOONCULAR_API_KEY,
       number: num,
     },
   });
