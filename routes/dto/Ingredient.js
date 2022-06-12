@@ -8,4 +8,4 @@ class Ingredient {
   }
 }
 
-exports.Ingredient = Ingredient;
+module.exports = Ingredient;

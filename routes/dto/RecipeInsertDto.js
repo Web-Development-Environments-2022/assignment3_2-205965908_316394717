@@ -1,6 +1,5 @@
 class RecipeInsertDto {
-    constructor(id,title,readyInMinutes,vegetarian,vegan,glutenFree, servings,image,inventedBy, serveDay, instructions) {
-        this.id = id;
+    constructor(title, readyInMinutes, vegetarian, vegan, glutenFree, servings, image, inventedBy, serveDay, instructions) {
         this.title = title;
         this.readyInMinutes = readyInMinutes;
         this.vegetarian = vegetarian;
@@ -14,4 +13,4 @@ class RecipeInsertDto {
     }
 }
 
-exports.RecipeInsertDto = RecipeInsertDto;
+module.exports = RecipeInsertDto;

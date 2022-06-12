@@ -31,22 +31,22 @@ router.get("/", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
     try {
+        const user_id = req.session.user_id;
+        if (!user_id) throw {status: 401, message: "Need to login"};
         let recipe = new RecipeInsertDto(
-            req.body.id,
             req.body.title,
             req.body.readyInMinutes,
-            req.body.popularity,
             req.body.vegetarian,
             req.body.vegan,
             req.body.glutenFree,
+            req.body.servings,
             req.body.image,
             req.body.inventedBy,
             req.body.serveDay,
-            req.body.servings,
             req.body.instructions
         );
 
-        await recipes_db_utils.addRecipe(recipe);
+        await recipes_db_utils.addRecipe(user_id, recipe);
         res.status(201).send(recipe);
     } catch (error) {
         next(error);

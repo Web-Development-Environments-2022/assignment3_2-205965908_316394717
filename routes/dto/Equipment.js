@@ -5,4 +5,4 @@ class Equipment {
     this.image = image;
   }
 }
-exports.Equipment = Equipment;
+module.exports = Equipment;

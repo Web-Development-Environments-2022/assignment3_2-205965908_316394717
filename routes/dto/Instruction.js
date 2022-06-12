@@ -7,4 +7,4 @@ class Instruction {
   }
 }
 
-exports.Instruction = Instruction;
+module.exports = Instruction;
