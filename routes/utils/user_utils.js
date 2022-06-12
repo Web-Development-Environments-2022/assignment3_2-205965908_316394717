@@ -6,7 +6,7 @@ async function getUser(user_id) {
 }
 
 async function markAsFavorite(user_id, recipe_id) {
-    let query = `INSERT INTO favorite_recipes VALUES ('${user_id}',${recipe_id})`;
+    let query = `REPLACE INTO favorite_recipes VALUES ('${user_id}',${recipe_id})`;
     await dbUtils.execQuery(query);
 }
 

@@ -10,17 +10,20 @@ const {RecipeInsertDto} = require("./dto/RecipeInsertDto");
 router.get("/", async (req, res, next) => {
     try {
         let search_details = {
-            query: req.params.query,
-            cuisine: req.params.cuisine,
-            diet: req.params.diet,
-            intolerances: req.params.intolerance,
-            sort: req.params.sortBy,
-            sortDirection: req.params.sortDirection,
-            offset: req.params.skip,
-            number: req.params.limit,
+            query: req.query.query,
+            cuisine: req.query.cuisine,
+            diet: req.query.diet,
+            intolerances: req.query.intolerance,
+            sort: req.query.sortBy,
+            sortDirection: req.query.sortDirection,
+            instructionsRequired: "true",
+            addRecipeInformation: "true",
+            offset: req.query.skip,
+            number: req.query.limit,
         };
+        Object.keys(search_details).forEach(key => search_details[key] === undefined ? delete search_details[key] : {});
         const recipes = await recipes_utils.searchRecipes(search_details);
-        res.send(recipes.recipes);
+        res.send(recipes);
     } catch (error) {
         next(error);
     }
@@ -55,7 +58,9 @@ router.post("/", async (req, res, next) => {
  */
 router.get("/random/:num", async (req, res, next) => {
     try {
-        const recipes = await recipes_utils.getRandomRecipes(req.params.num);
+        const num = parseInt(req.params.num);
+        if (!Number.isInteger(num)) throw {status: 400, message: "Invalid number of random"};
+        const recipes = await recipes_utils.getRandomRecipes(num);
         res.status(200).send(recipes);
     } catch (error) {
         next(error);
@@ -87,7 +92,7 @@ router.get("/viewed/:num", async (req, res, next) => {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
         const num = parseInt(req.params.num);
-        if (!Number.isInteger(num)) throw {status: 401, message: "Need to login"};
+        if (!Number.isInteger(num)) throw {status: 400, message: "Invalid number of views"};
         const recipes_id = await user_utils.getLastViewedRecipes(
             user_id,
             num
@@ -132,13 +137,24 @@ router.get("/my", async (req, res, next) => {
     }
 });
 
+router.get("/family", async (req, res, next) => {
+    try {
+        const user_id = req.session.user_id;
+        if (!user_id) throw {status: 401, message: "Need to login"};
+        const recipes = await recipes_db_utils.getMyRecipe(user_id, true);
+        res.status(200).send(recipes);
+    } catch (error) {
+        next(error);
+    }
+});
+
 /**
  * This path returns a full details of a recipe by its id
  */
 router.get("/:recipeId", async (req, res, next) => {
     try {
         const recipe_id = parseInt(req.params.recipeId);
-        if (!Number.isInteger(recipe_id)) throw {status: 404, message: "Invalid recipe id"};
+        if (!Number.isInteger(recipe_id)) throw {status: 400, message: "Invalid recipe id"};
         const user_id = req.session.user_id;
         const recipe = await recipes_utils.getRecipeDetails(recipe_id);
         await user_utils.markAsViewed(user_id, recipe_id); //TODO: if the recipe already marked as viewed?

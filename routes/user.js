@@ -28,10 +28,11 @@ router.use(async function (req, res, next) {
 router.post("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
+    if (!user_id) throw {status: 401, message: "Need to login"};
     const recipe_id = req.body.recipeId;
+    if (!Number.isInteger(recipe_id)) throw {status: 400, message: "Invalid recipe id"};
     await user_utils.markAsFavorite(user_id, recipe_id);
     res.status(201).send("The Recipe successfully saved as favorite");
-    //TODO: handle double favorite - alrady favorite
   } catch (error) {
     next(error);
   }
@@ -43,7 +44,9 @@ router.post("/favorites", async (req, res, next) => {
 router.delete("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
+    if (!user_id) throw {status: 401, message: "Need to login"};
     const recipe_id = req.body.recipeId;
+    if (!Number.isInteger(recipe_id)) throw {status: 400, message: "Invalid recipe id"};
     await user_utils.removeMarkAsFavorite(user_id, recipe_id);
     res.status(202).send("The Recipe successfully deleted from favorites");
   } catch (error) {
@@ -54,6 +57,7 @@ router.delete("/favorites", async (req, res, next) => {
 router.get("/me", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
+    if (!user_id) throw {status: 401, message: "Need to login"};
     let user = (await user_utils.getUser(user_id))[0];
     if (!user) {
       res.status(404).send();
