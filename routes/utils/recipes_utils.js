@@ -64,7 +64,7 @@ async function searchRecipes(search_details, user_id) {
     let data = await axios.get(`${api_domain}/complexSearch`, {
         params: params
     });
-    let promises =data.data.results.map(async (x) => await convertToRecipePreview(x, user_id)) ;
+    let promises = data.data.results.map(async (x) => await convertToRecipePreview(x, user_id));
     return Promise.all(promises);
 }
 

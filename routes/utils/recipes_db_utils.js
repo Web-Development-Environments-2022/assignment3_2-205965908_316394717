@@ -40,7 +40,13 @@ async function addRecipe(user_id, recipe) {
     }
 }
 
-async function getMyRecipe(user_id, family = false) {
+async function getMyRecipes(user_id, family = false) {
+    let query_select_my_recipes = `SELECT * FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
+    let recipes = await DButils.execQuery(query_select_my_recipes);
+    return recipes.map((x) => convertToRecipePreview(x));
+}
+
+async function getMySpecificRecipe(user_id, family = false) {
     let query_select_my_recipes = `SELECT * FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
     let recipes = await DButils.execQuery(query_select_my_recipes);
     let results = [];
@@ -97,5 +103,31 @@ async function getMyRecipe(user_id, family = false) {
     return results;
 }
 
+function convertToRecipePreview(recipe) {
+    let {
+        id,
+        title,
+        ready_in_minutes,
+        image_path,
+        vegan,
+        vegetarian,
+        gluten_free,
+    } = recipe;
+
+    return {
+        id: id,
+        title: title,
+        readyInMinutes: ready_in_minutes,
+        image: image_path,
+        popularity: 0,
+        vegan: vegan === 1,
+        vegetarian: vegetarian === 1,
+        glutenFree: gluten_free === 1,
+        hasViewed: true,
+        isFavorite: false
+    };
+}
+
 exports.addRecipe = addRecipe;
-exports.getMyRecipe = getMyRecipe;
+exports.getMySpecificRecipe = getMySpecificRecipe;
+exports.getMyRecipes = getMyRecipes;

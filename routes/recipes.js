@@ -140,7 +140,7 @@ router.get("/my", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        const recipes = await recipes_db_utils.getMyRecipe(user_id);
+        const recipes = await recipes_db_utils.getMyRecipes(user_id);
         res.status(200).send(recipes);
     } catch (error) {
         next(error);
@@ -151,7 +151,7 @@ router.get("/family", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        const recipes = await recipes_db_utils.getMyRecipe(user_id, true);
+        const recipes = await recipes_db_utils.getMyRecipes(user_id, true);
         res.status(200).send(recipes);
     } catch (error) {
         next(error);
