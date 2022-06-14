@@ -147,6 +147,20 @@ router.get("/my", async (req, res, next) => {
     }
 });
 
+router.get("/my/:recipeId", async (req, res, next) => {
+    try {
+        const user_id = req.session.user_id;
+        if (!user_id) throw {status: 401, message: "Need to login"};
+        const recipe_id = parseInt(req.params.recipeId);
+        if (!Number.isInteger(recipe_id)) throw {status: 400, message: "Invalid recipe id"};
+        const recipes = await recipes_db_utils.getMySpecificRecipe(user_id, recipe_id);
+        if (recipes.length === 0) throw {status: 404, message: "My recipe not found"};
+        else res.status(200).send(recipes[0]);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.get("/family", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;

@@ -53,42 +53,42 @@ paths:
     get:
       tags:
         - Recipes
-      summary: Get all recipies use filter options
-      operationId: getRecipies
+      summary: Get all recipes use filter options
+      operationId: getRecipes
       description: |
-        Get the recipies in the database base on filters
+        Get the recipes in the database base on filters
       parameters:
         - in: query
           name: query
-          description: pass an optional search name string for looking up recipies
+          description: pass an optional search name string for looking up recipes
           required: false
           schema:
             type: string
             example: 'Pasta'
         - in: query
           name: cuisine
-          description: pass an optional search cuisine string for looking up recipies
+          description: pass an optional search cuisine string for looking up recipes
           required: false
           schema:
             type: string
             example: 'Jewish'
         - in: query
           name: diet
-          description: pass an optional search diet string for looking up recipies
+          description: pass an optional search diet string for looking up recipes
           required: false
           schema:
             type: string
             example: 'Ketogenic'
         - in: query
           name: intolerance
-          description: pass an optional search intolerance string for looking up recipies
+          description: pass an optional search intolerance string for looking up recipes
           required: false
           schema:
             type: string
             example: 'Sesame'
         - in: query
           name: sortBy
-          description: pass an optional search sort enum for looking up recipies
+          description: pass an optional search sort enum for looking up recipes
           required: false
           schema:
             type: string
@@ -96,7 +96,7 @@ paths:
             example: 'popularity'
         - in: query
           name: sortDirection
-          description: pass an optional search sort enum for looking up recipies
+          description: pass an optional search sort enum for looking up recipes
           required: false
           schema:
             type: string
@@ -137,17 +137,17 @@ paths:
     get:
       tags:
         - Recipes
-      summary: Get random recipies
-      operationId: getRandomRecipies
+      summary: Get random recipes
+      operationId: getRandomRecipes
       description: |
-        Get random recipies as many as requested
+        Get random recipes as many as requested
       parameters:
         - in: path
           name: num
-          description: number of recipies to get
+          description: number of recipes to get
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         '200':
           description: search results matching criteria
@@ -164,15 +164,15 @@ paths:
     get:
       tags:
         - Recipes
-      summary: Get my recipies
-      operationId: getMyRecipies
+      summary: Get my recipes
+      operationId: getMyRecipes
       description: |
-        Get the recipies that the user added to the system
+        Get the recipes that the user added to the system
       security:
         - OAuth2: [ read ]
       responses:
         '200':
-          description: all my recipies results matching criteria
+          description: all my recipes results matching criteria
           content:
             application/json:
               schema:
@@ -188,15 +188,15 @@ paths:
     get:
       tags:
         - Recipes
-      summary: Get family recipies
-      operationId: getFamilyRecipies
+      summary: Get family recipes
+      operationId: getFamilyRecipes
       description: |
-        Get the recipies of the user family
+        Get the recipes of the user family
       security:
         - OAuth2: [ read ]
       responses:
         '200':
-          description: all family recipies results matching criteria
+          description: all family recipes results matching criteria
           content:
             application/json:
               schema:
@@ -208,20 +208,53 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /recipes/my/{recipeId}:
+    get:
+      tags:
+        - Recipes
+      summary: Get specific data about my recipe
+      operationId: getMySpecificRecipe
+      description: |
+        Get specific data about recipe that the user added to the system
+      parameters:
+        - in: path
+          name: recipeId
+          description: id of recipe to get
+          required: true
+          schema:
+            type: integer
+      security:
+        - OAuth2: [ read ]
+      responses:
+        '200':
+          description: get specific data about recipe that the user added to the system
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /recipes/{recipeId}:
     get:
       tags:
         - Recipes
-      summary: Get specific recipie
-      operationId: getRecipie
+      summary: Get specific recipe
+      operationId: getRecipe
       description: |
-        Get specific recipie
+        Get specific recipe
       security:
         - OAuth2: [ read ]
       parameters:
         - in: path
           name: recipeId
-          description: recipie id to lookup
+          description: recipe id to lookup
           required: true
           schema:
             type: integer
@@ -241,15 +274,15 @@ paths:
     get:
       tags:
         - Recipes
-      summary: Get viewed recipies
-      operationId: getViewedRecipies
+      summary: Get viewed recipes
+      operationId: getViewedRecipes
       description: |
-        Get the recipies that the user watched before
+        Get the recipes that the user watched before
       security:
         - OAuth2: [ read ]
       responses:
         '200':
-          description: all viewed recipies results matching criteria
+          description: all viewed recipes results matching criteria
           content:
             application/json:
               schema:
@@ -267,22 +300,22 @@ paths:
     get:
       tags:
         - Recipes
-      summary: Get user N recent viewed recipies
+      summary: Get user N recent viewed recipes
       operationId: getUserRecentViewed
       description: |
-        Get user N recent viewed recipies
+        Get user N recent viewed recipes
       security:
         - OAuth2: [ read ]
       parameters:
         - in: path
           name: num
-          description: number of recipies to return
+          description: number of recipes to return
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: all viewed recipies results matching criteria
+          description: all viewed recipes results matching criteria
           content:
             application/json:
               schema:
@@ -302,15 +335,15 @@ paths:
     get:
       tags:
         - Recipes
-      summary: Get favorite recipies
-      operationId: getFavoriteRecipies
+      summary: Get favorite recipes
+      operationId: getFavoriteRecipes
       description: |
-        Get the recipies that the user save before
+        Get the recipes that the user save before
       security:
         - OAuth2: [ read ]
       responses:
         '200':
-          description: all viewed recipies results matching criteria
+          description: all favorite recipes results matching criteria
           content:
             application/json:
               schema:
@@ -393,7 +426,7 @@ paths:
       summary: Get user card data
       operationId: getUserMe
       description: |
-        Get user card data conteining all the needed data about the user
+        Get user card data containing all the needed data about the user
         for his personal page
       security:
         - OAuth2: [ read ]
@@ -621,18 +654,6 @@ components:
         isFavorite:
           type: boolean
           example: True
-        image:
-          type: string
-          format: path
-          example: 'https://learnenglishteens.britishcouncil.org/sites/teens/files/styles/article/public/rs7776_thinkstockphotos-856586464_1-low.jpg?itok=zHdfQ6Ij'
-        ingredients:
-          type: array
-          items:
-            $ref: '#/components/schemas/Ingredient'
-        instructions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Instruction'
         servings:
           type: integer
           format: amount
@@ -645,6 +666,15 @@ components:
         serveDay:
           type: string
           example: 'Friday noon'
+        #
+        image:
+          type: string
+          format: path
+          example: 'https://learnenglishteens.britishcouncil.org/sites/teens/files/styles/article/public/rs7776_thinkstockphotos-856586464_1-low.jpg?itok=zHdfQ6Ij'
+        instructions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Instruction'
       required:
         - id
         - title

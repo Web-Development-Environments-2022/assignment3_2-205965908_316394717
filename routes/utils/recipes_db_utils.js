@@ -46,8 +46,8 @@ async function getMyRecipes(user_id, family = false) {
     return recipes.map((x) => convertToRecipePreview(x));
 }
 
-async function getMySpecificRecipe(user_id, family = false) {
-    let query_select_my_recipes = `SELECT * FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
+async function getMySpecificRecipe(user_id, recipe_id) {
+    let query_select_my_recipes = `SELECT * FROM recipes a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE user_id = '${user_id}' AND id = ${recipe_id}`;
     let recipes = await DButils.execQuery(query_select_my_recipes);
     let results = [];
     for (const recipe of recipes) {
@@ -71,7 +71,7 @@ async function getMySpecificRecipe(user_id, family = false) {
     ON b.ingredient_id = c.id;`;
         let ingredients_db = await DButils.execQuery(query_select_instruction_ingredients);
         ///////
-        // get all uniqe numbers
+        // get all unique numbers
         const numbers_and_steps = new Set();
         equipments_db.forEach((row) => {
             numbers_and_steps.add([row.number, row.step]);
@@ -95,10 +95,9 @@ async function getMySpecificRecipe(user_id, family = false) {
             instructions.push(new Instruction(equipments, ingredients, num_and_step[0], num_and_step[1]));
         });
 
-        let inventor = family ? recipe.invented_by : undefined;
-        let eatTime = family ? recipe.serve_day : undefined;
-
-        results.push(new RecipeDto(recipe.id, user_id, recipe.title, recipe.ready_in_minutes, recipe.vegetarian, recipe.vegan, recipe.gluten_free, recipe.servings, recipe.image, inventor, eatTime, instructions));
+        results.push(new RecipeDto(recipe.id, recipe.title, recipe.ready_in_minutes, 0, recipe.vegetarian,
+            recipe.vegan, recipe.gluten_free, true, false, recipe.servings, recipe.image_path,
+            recipe.invented_by, recipe.serve_day, instructions));
     }
     return results;
 }
