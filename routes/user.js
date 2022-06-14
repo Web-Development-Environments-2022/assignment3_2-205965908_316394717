@@ -41,11 +41,11 @@ router.post("/favorites", async (req, res, next) => {
 /**
  * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
  */
-router.delete("/favorites", async (req, res, next) => {
+router.delete("/favorites/:recipeId", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        const recipe_id = req.body.recipeId;
+        const recipe_id = parseInt(req.params.recipeId);
         if (!Number.isInteger(recipe_id)) throw {status: 400, message: "Invalid recipe id"};
         await user_utils.removeMarkAsFavorite(user_id, recipe_id);
         res.status(202).send({status: 202, message:"The Recipe successfully deleted from favorites"});

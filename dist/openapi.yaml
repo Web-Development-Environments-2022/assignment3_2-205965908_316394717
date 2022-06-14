@@ -468,7 +468,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
-
+  /users/favorites/{recipeId}:
     delete:
       tags:
         - Users
@@ -476,11 +476,13 @@ paths:
       operationId: favoriteRecipeRemove
       description: |
         remove recipe from favorite recipes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddFavoriteDto'
+      parameters:
+        - in: path
+          name: recipeId
+          description: recipe id
+          required: true
+          schema:
+            type: integer
       security:
         - OAuth2: [ read ]
       responses:
