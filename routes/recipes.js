@@ -3,12 +3,14 @@ const router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
 const recipes_db_utils = require("./utils/recipes_db_utils");
 const user_utils = require("./utils/user_utils");
-const {RecipeInsertDto} = require("./dto/RecipeInsertDto");
+// const {RecipeInsertDto} = require("./dto/RecipeInsertDto");
+const RecipeInsertDto = require("./dto/RecipeInsertDto");
 
 // router.get("/", (req, res) => res.send("im here"));
 
 router.get("/", async (req, res, next) => {
     try {
+        const user_id = req.session.user_id;
         let search_details = {
             query: req.query.query,
             cuisine: req.query.cuisine,
@@ -22,8 +24,9 @@ router.get("/", async (req, res, next) => {
             number: req.query.limit,
         };
         Object.keys(search_details).forEach(key => search_details[key] === undefined ? delete search_details[key] : {});
-        const recipes = await recipes_utils.searchRecipes(search_details);
-        res.send(recipes);
+        const recipes = await recipes_utils.searchRecipes(search_details, user_id);
+        if (recipes.length === 0) res.status(204).send();
+        else res.status(200).send(recipes);
     } catch (error) {
         next(error);
     }
@@ -45,7 +48,10 @@ router.post("/", async (req, res, next) => {
             req.body.serveDay,
             req.body.instructions
         );
-
+        if (!recipe.title || !recipe.readyInMinutes || recipe.vegetarian === undefined || recipe.vegan === undefined ||
+            recipe.glutenFree === undefined || !recipe.servings || !recipe.image) {
+            throw {status: 400, message: "Invalid recipe data"};
+        }
         await recipes_db_utils.addRecipe(user_id, recipe);
         res.status(201).send(recipe);
     } catch (error) {
@@ -58,9 +64,10 @@ router.post("/", async (req, res, next) => {
  */
 router.get("/random/:num", async (req, res, next) => {
     try {
+        const user_id = req.session.user_id;
         const num = parseInt(req.params.num);
         if (!Number.isInteger(num)) throw {status: 400, message: "Invalid number of random"};
-        const recipes = await recipes_utils.getRandomRecipes(num);
+        const recipes = await recipes_utils.getRandomRecipes(num, user_id);
         res.status(200).send(recipes);
     } catch (error) {
         next(error);
@@ -77,8 +84,9 @@ router.get("/viewed", async (req, res, next) => {
         const recipes_id = await user_utils.getViewedRecipes(user_id);
         let recipes_id_array = [];
         recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-        const results = await recipes_utils.getRecipesPreview(recipes_id_array);
-        res.status(200).send(results);
+        const results = await recipes_utils.getRecipesPreview(recipes_id_array, user_id);
+        if (results.length === 0) res.status(204).send();
+        else res.status(200).send(results);
     } catch (error) {
         next(error);
     }
@@ -99,8 +107,9 @@ router.get("/viewed/:num", async (req, res, next) => {
         );
         let recipes_id_array = [];
         recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-        const results = await recipes_utils.getRecipesPreview(recipes_id_array);
-        res.status(200).send(results);
+        const results = await recipes_utils.getRecipesPreview(recipes_id_array, user_id);
+        if (results.length === 0) res.status(204).send();
+        else res.status(200).send(results);
     } catch (error) {
         next(error);
     }
@@ -116,8 +125,9 @@ router.get("/favorites", async (req, res, next) => {
         const recipes_id = await user_utils.getFavoriteRecipes(user_id);
         let recipes_id_array = [];
         recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-        const results = await recipes_utils.getRecipesPreview(recipes_id_array);
-        res.status(200).send(results);
+        const results = await recipes_utils.getRecipesPreview(recipes_id_array, user_id);
+        if (results.length === 0) res.status(204).send();
+        else res.status(200).send(results);
     } catch (error) {
         next(error);
     }
@@ -157,7 +167,7 @@ router.get("/:recipeId", async (req, res, next) => {
         if (!Number.isInteger(recipe_id)) throw {status: 400, message: "Invalid recipe id"};
         const user_id = req.session.user_id;
         const recipe = await recipes_utils.getRecipeDetails(recipe_id);
-        await user_utils.markAsViewed(user_id, recipe_id); //TODO: if the recipe already marked as viewed?
+        if (user_id) await user_utils.markAsViewed(user_id, recipe_id);
         res.status(200).send(recipe);
     } catch (error) {
         next(error);

@@ -10,22 +10,17 @@ const Equipment = require("../dto/Equipment");
 const DButils = require("./DButils");
 
 async function addRecipe(user_id, recipe) {
-    let query_insert_recipe = `INSERT INTO recipes VALUES (0, ${user_id}, '${recipe.title}', ${recipe.readyInMinutes}, 
-    ${recipe.vegetarian}, ${recipe.vegan}, ${recipe.glutenFree}, ${recipe.servings}, '${recipe.image}')`;
-    await DButils.execQuery(query_insert_recipe);
-    let query_last_insert = "SELECT LAST_INSERT_ID() as number";
-    let recipe_id = (await DButils.execQuery(query_last_insert))[0].number;
-
-    if (recipe.inventedBy) {
-        let query_mark_as_family_recipe = `INSERT INTO family_recipe VALUES (${recipe_id}, '${recipe.inventedBy}', '${recipe.serveDay}')`;
-        await DButils.execQuery(query_mark_as_family_recipe);
-    }
-
-    let instructions = [];
-    let equipments = [];
-    let ingredients = [];
-
     try {
+        let query_insert_recipe = `INSERT INTO recipes VALUES (0, ${user_id}, '${recipe.title}', ${recipe.readyInMinutes}, 
+    ${recipe.vegetarian}, ${recipe.vegan}, ${recipe.glutenFree}, ${recipe.servings}, '${recipe.image}')`;
+        await DButils.execQuery(query_insert_recipe);
+        let query_last_insert = "SELECT LAST_INSERT_ID() as number";
+        let recipe_id = (await DButils.execQuery(query_last_insert))[0].number;
+
+        if (recipe.inventedBy && recipe.serveDay) {
+            let query_mark_as_family_recipe = `INSERT INTO family_recipe VALUES (${recipe_id}, '${recipe.inventedBy}', '${recipe.serveDay}')`;
+            await DButils.execQuery(query_mark_as_family_recipe);
+        }
         for (const instruction of recipe.instructions) {
             let query_insert_instructions = `INSERT INTO instructions VALUES (${recipe_id}, ${instruction.number}, '${instruction.step}')`;
             await DButils.execQuery(query_insert_instructions);
@@ -40,12 +35,9 @@ async function addRecipe(user_id, recipe) {
             }
         }
     } catch (e) {
-        print(e);
+        console.log(e);
+        throw e;
     }
-    //TODO: add family if needed!
-
-    // let query = (instructions + equipments + ingredients).join("; \n") + ";";
-    // await DButils.execQuery(query);
 }
 
 async function getMyRecipe(user_id, family = false) {

@@ -61,7 +61,7 @@ app.use(function (req, res, next) {
 });
 
 // ----> For checking that our server is alive
-app.get("/alive", (req, res) => res.send("I'm alive"));
+// app.get("/alive", (req, res) => res.send("I'm alive"));
 
 // Routing
 const user = require("./routes/user");
@@ -74,7 +74,7 @@ app.use(auth);
 // Default router
 app.use(function (err, req, res, next) {
     console.error(err);
-    res.status(err.status || 500).send({message: err.message, success: false});
+    res.status(err.status || 500).send({status: err.status || 500, message: err.message});
 });
 
 const port = process.env.PORT || "80";
