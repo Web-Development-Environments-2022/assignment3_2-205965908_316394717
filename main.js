@@ -73,6 +73,7 @@ app.use(auth);
 
 // Default router
 app.use(function (err, req, res, next) {
+    if (err.response) err.status = err.response.status;
     console.error(err);
     res.status(err.status || 500).send({status: err.status || 500, message: err.message});
 });

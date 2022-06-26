@@ -180,7 +180,7 @@ router.get("/:recipeId", async (req, res, next) => {
         const recipe_id = parseInt(req.params.recipeId);
         if (!Number.isInteger(recipe_id)) throw {status: 400, message: "Invalid recipe id"};
         const user_id = req.session.user_id;
-        const recipe = await recipes_utils.getRecipeDetails(recipe_id);
+        const recipe = await recipes_utils.getRecipeDetails(recipe_id, user_id);
         if (user_id) await user_utils.markAsViewed(user_id, recipe_id);
         res.status(200).send(recipe);
     } catch (error) {

@@ -1,6 +1,7 @@
 const axios = require("axios");
 const api_domain = "https://api.spoonacular.com/recipes";
 const DButils = require("./DButils");
+const RecipeDto = require("../dto/RecipeDto");
 
 /**
  * Get recipes list from spooncular response and extract the relevant recipe data for preview
@@ -28,9 +29,9 @@ async function getRecipeInformationBulk(recipes_ids) {
     });
 }
 
-async function getRecipeDetails(recipe_id) {
+async function getRecipeDetails(recipe_id, user_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    return recipe_info.data;
+    return await convertToRecipePage(recipe_info.data, user_id);
 }
 
 async function getRecipeDetailsBulk(recipes_ids, user_id) {
@@ -100,6 +101,34 @@ async function convertToRecipePreview(recipe, user_id) {
         isFavorite: viewed_favorite.favorite === 1
     };
     return preview;
+}
+
+
+async function convertToRecipePage(recipe, user_id) {
+    let viewed_favorite = {viewed: 0, favorite: 0}
+    if (user_id) {
+        const query = `SELECT * FROM 
+(SELECT count(*) as viewed FROM viewed_recipes WHERE user_id = ${user_id} AND recipe_id = ${recipe.id}) a,
+(SELECT count(*) as favorite FROM favorite_recipes WHERE user_id = ${user_id} AND recipe_id = ${recipe.id}) b`
+        viewed_favorite = (await DButils.execQuery(query))[0];
+    }
+
+    return new RecipeDto(
+        recipe.id,
+        recipe.title,
+        recipe.readyInMinutes,
+        recipe.popularity,
+        recipe.vegetarian,
+        recipe.vegan,
+        recipe.glutenFree,
+        viewed_favorite.viewed === 1,
+        viewed_favorite.favorite === 1,
+        recipe.servings,
+        recipe.image,
+        "",
+        "",
+        recipe.analyzedInstructions
+    )
 }
 
 exports.getRecipeDetails = getRecipeDetails;
