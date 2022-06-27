@@ -71,7 +71,9 @@ async function getMySpecificRecipe(user_id, recipe_id) {
     ///////
     // get all unique numbers
     const numbers_and_steps = new Set();
-    equipments_db.forEach((row) => {
+    let select_number_and_step = `SELECT number, step FROM instructions WHERE recipe_id = ${recipe.id}`;
+    let number_step_data = await DButils.execQuery(select_number_and_step);
+    number_step_data.forEach((row) => {
         numbers_and_steps.add([row.number, row.step]);
     });
 
@@ -87,7 +89,7 @@ async function getMySpecificRecipe(user_id, recipe_id) {
         let ingredients = [];
         ingredients_db.forEach((ingredient) => {
             if (ingredient.number === num) {
-                ingredients.push(new Ingredient(ingredient.ingredient_id, ingredient.ingredient_name, ingredient.amount, ingredient.amountType, ingredient.ingredient_image));
+                ingredients.push(new Ingredient(ingredient.ingredient_id, ingredient.ingredient_name, ingredient.amount, ingredient.amount_type, ingredient.ingredient_image));
             }
         });
         instructions.push(new Instruction(equipments, ingredients, num_and_step[0], num_and_step[1]));
@@ -96,14 +98,14 @@ async function getMySpecificRecipe(user_id, recipe_id) {
     let ingredients = {};
     instructions.forEach(instruction => {
         instruction.ingredients.forEach(ingredient => {
-            let key = {id: ingredient.id, unit: ingredient.amountType};
+            let key = `${ingredient.id}-${ingredient.amountType}`;
             if (!ingredients[key]) {
                 ingredients[key] =
                     {
                         id: ingredient.id,
                         name: ingredient.name,
                         amount: 0,
-                        amountType: ingredient.unit,
+                        amountType: ingredient.amountType,
                         image: ingredient.image
                     };
             }
