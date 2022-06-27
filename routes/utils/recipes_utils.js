@@ -45,7 +45,7 @@ async function getRecipeDetailsBulk(recipes_ids, user_id) {
 }
 
 async function getRecipesPreview(recipes_id_array, user_id) {
-    return getRecipeDetailsBulk(recipes_id_array, user_id); //TODO: maybe remove this function and use the BULK insted?
+    return getRecipeDetailsBulk(recipes_id_array, user_id);
 }
 
 async function getRandomRecipes(num, user_id) {
@@ -113,21 +113,71 @@ async function convertToRecipePage(recipe, user_id) {
         viewed_favorite = (await DButils.execQuery(query))[0];
     }
 
+    let ingredients = [];
+    recipe.extendedIngredients.forEach(ingredient => {
+        ingredients.push(
+            {
+                id: ingredient.id,
+                name: ingredient.name,
+                amount: ingredient.amount,
+                amountType: ingredient.unit,
+                image: ingredient.image
+            }
+        )
+    });
+
+    let equipments = {};
+    recipe.analyzedInstructions.forEach(analyzedInstruction => {
+        analyzedInstruction.steps.forEach(step => {
+            step.equipment.forEach(equipment => {
+                equipments[equipment.id] =
+                    {
+                        id: equipment.id,
+                        name: equipment.name,
+                        image: equipment.image
+                    };
+            });
+        });
+    });
+    equipments = Object.values(equipments);
+
+
+    let instructionSets = [];
+    recipe.analyzedInstructions.forEach(instructions => {
+        let steps = [];
+        instructions.steps.forEach(step => {
+            steps.push(
+                {
+                    number: step.number,
+                    step: step.step,
+                    ingredients: step.ingredients.map((x) => {
+                        return {id: x.id, name: x.name, image: x.image}
+                    }),
+                    equipments: step.equipment.map((x) => {
+                        return {id: x.id, name: x.name, image: x.image}
+                    })
+                });
+        });
+        instructionSets.push({name: instructions.name, steps: steps});
+    });
+
     return new RecipeDto(
         recipe.id,
         recipe.title,
         recipe.readyInMinutes,
-        recipe.popularity,
+        recipe.aggregateLikes,
         recipe.vegetarian,
         recipe.vegan,
         recipe.glutenFree,
         viewed_favorite.viewed === 1,
         viewed_favorite.favorite === 1,
-        recipe.servings,
         recipe.image,
         "",
         "",
-        recipe.analyzedInstructions
+        recipe.servings,
+        ingredients,
+        equipments,
+        instructionSets
     )
 }
 

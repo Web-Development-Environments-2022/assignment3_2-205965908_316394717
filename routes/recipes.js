@@ -3,7 +3,6 @@ const router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
 const recipes_db_utils = require("./utils/recipes_db_utils");
 const user_utils = require("./utils/user_utils");
-// const {RecipeInsertDto} = require("./dto/RecipeInsertDto");
 const RecipeInsertDto = require("./dto/RecipeInsertDto");
 
 // router.get("/", (req, res) => res.send("im here"));
@@ -36,7 +35,7 @@ router.post("/", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        let recipe = new RecipeInsertDto(
+        let recipe = new RecipeInsertDto( //TODO: change to the new structure
             req.body.title,
             req.body.readyInMinutes,
             req.body.vegetarian,
@@ -153,9 +152,9 @@ router.get("/my/:recipeId", async (req, res, next) => {
         if (!user_id) throw {status: 401, message: "Need to login"};
         const recipe_id = parseInt(req.params.recipeId);
         if (!Number.isInteger(recipe_id)) throw {status: 400, message: "Invalid recipe id"};
-        const recipes = await recipes_db_utils.getMySpecificRecipe(user_id, recipe_id);
-        if (recipes.length === 0) throw {status: 404, message: "My recipe not found"};
-        else res.status(200).send(recipes[0]);
+        const recipe = await recipes_db_utils.getMySpecificRecipe(user_id, recipe_id);
+        if (!recipe) throw {status: 404, message: "My recipe not found"};
+        else res.status(200).send(recipe);
     } catch (error) {
         next(error);
     }

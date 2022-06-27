@@ -1,9 +1,6 @@
-// import { RecipeDto } from "../dto/RecipeDto";
-// import { Instruction } from "../dto/Instruction";
-// import { Ingredient } from "../dto/Ingredient";
-// import { Equipment } from "../dto/Equipment";
 const RecipeDto = require("../dto/RecipeDto");
 const Instruction = require("../dto/Instruction");
+const InstructionSet = require("../dto/InstructionSet");
 const Ingredient = require("../dto/Ingredient");
 const Equipment = require("../dto/Equipment");
 
@@ -48,58 +45,90 @@ async function getMyRecipes(user_id, family = false) {
 
 async function getMySpecificRecipe(user_id, recipe_id) {
     let query_select_my_recipes = `SELECT * FROM recipes a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE user_id = '${user_id}' AND id = ${recipe_id}`;
-    let recipes = await DButils.execQuery(query_select_my_recipes);
-    let results = [];
-    for (const recipe of recipes) {
-        // get equipments
-        let query_select_instruction_equipments = `SELECT a.number, a.step, c.id as equipment_id, 
+    let recipeDbData = await DButils.execQuery(query_select_my_recipes);
+    if (recipeDbData.length === 0) return undefined;
+    let recipe = recipeDbData[0];
+
+    // get equipments
+    let query_select_instruction_equipments = `SELECT a.number, a.step, c.id as equipment_id, 
     c.name as equipment_name, c.image_path as equipment_image
     FROM (SELECT * FROM instructions WHERE recipe_id = ${recipe.id}) a
     LEFT JOIN instructions_equipments b
     ON a.recipe_id = b.recipe_id AND a.number = b.number
     JOIN equipments c
     ON b.equipment_id = c.id`;
-        let equipments_db = await DButils.execQuery(query_select_instruction_equipments);
+    let equipments_db = await DButils.execQuery(query_select_instruction_equipments);
 
-        // get ingredients
-        let query_select_instruction_ingredients = `SELECT a.number, a.step, b.amount, b.amount_type, c.id as ingredient_id, 
+    // get ingredients
+    let query_select_instruction_ingredients = `SELECT a.number, a.step, b.amount, b.amount_type, c.id as ingredient_id, 
     c.name as ingredient_name, c.image_path as ingredient_image
     FROM (SELECT * FROM instructions WHERE recipe_id = ${recipe.id}) a
     LEFT JOIN instructions_ingredients b
     ON a.recipe_id = b.recipe_id AND a.number = b.number
     JOIN ingredients c
     ON b.ingredient_id = c.id;`;
-        let ingredients_db = await DButils.execQuery(query_select_instruction_ingredients);
-        ///////
-        // get all unique numbers
-        const numbers_and_steps = new Set();
-        equipments_db.forEach((row) => {
-            numbers_and_steps.add([row.number, row.step]);
-        });
+    let ingredients_db = await DButils.execQuery(query_select_instruction_ingredients);
+    ///////
+    // get all unique numbers
+    const numbers_and_steps = new Set();
+    equipments_db.forEach((row) => {
+        numbers_and_steps.add([row.number, row.step]);
+    });
 
-        let instructions = [];
-        numbers_and_steps.forEach((num_and_step) => {
-            const num = num_and_step[0];
-            let equipments = [];
-            equipments_db.forEach((equipment) => {
-                if (equipment.number === num) {
-                    equipments.push(new Equipment(equipment.equipment_id, equipment.equipment_name, equipment.equipment_image));
-                }
-            });
-            let ingredients = [];
-            ingredients_db.forEach((ingredient) => {
-                if (ingredient.number === num) {
-                    ingredients.push(new Ingredient(ingredient.ingredient_id, ingredient.ingredient_name, ingredient.amount, ingredient.amountType, ingredient.ingredient_image));
-                }
-            });
-            instructions.push(new Instruction(equipments, ingredients, num_and_step[0], num_and_step[1]));
+    let instructions = [];
+    numbers_and_steps.forEach((num_and_step) => {
+        const num = num_and_step[0];
+        let equipments = [];
+        equipments_db.forEach((equipment) => {
+            if (equipment.number === num) {
+                equipments.push(new Equipment(equipment.equipment_id, equipment.equipment_name, equipment.equipment_image));
+            }
         });
+        let ingredients = [];
+        ingredients_db.forEach((ingredient) => {
+            if (ingredient.number === num) {
+                ingredients.push(new Ingredient(ingredient.ingredient_id, ingredient.ingredient_name, ingredient.amount, ingredient.amountType, ingredient.ingredient_image));
+            }
+        });
+        instructions.push(new Instruction(equipments, ingredients, num_and_step[0], num_and_step[1]));
+    });
 
-        results.push(new RecipeDto(recipe.id, recipe.title, recipe.ready_in_minutes, 0, recipe.vegetarian,
-            recipe.vegan, recipe.gluten_free, true, false, recipe.servings, recipe.image_path,
-            recipe.invented_by, recipe.serve_day, instructions));
-    }
-    return results;
+    let ingredients = {};
+    instructions.forEach(instruction => {
+        instruction.ingredients.forEach(ingredient => {
+            let key = {id: ingredient.id, unit: ingredient.amountType};
+            if (!ingredients[key]) {
+                ingredients[key] =
+                    {
+                        id: ingredient.id,
+                        name: ingredient.name,
+                        amount: 0,
+                        amountType: ingredient.unit,
+                        image: ingredient.image
+                    };
+            }
+            ingredients[key].amount += ingredient.amount;
+        });
+    });
+    ingredients = Object.values(ingredients);
+
+    let equipments = {};
+    instructions.forEach(instruction => {
+        instruction.equipments.forEach(equipment => {
+            equipments[equipment.id] =
+                {
+                    id: equipment.id,
+                    name: equipment.name,
+                    image: equipment.image
+                };
+        });
+    });
+    equipments = Object.values(equipments);
+
+
+    return new RecipeDto(recipe.id, recipe.title, recipe.ready_in_minutes, 0, recipe.vegetarian,
+        recipe.vegan, recipe.gluten_free, true, false, recipe.image_path,
+        recipe.invented_by, recipe.serve_day, recipe.servings, ingredients, equipments, [new InstructionSet("", instructions)]);
 }
 
 function convertToRecipePreview(recipe) {

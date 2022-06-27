@@ -1,6 +1,6 @@
 class RecipeDto {
-    constructor(id, title, readyInMinutes, popularity, vegetarian, vegan, glutenFree, hasViewed, isFavorite, servings,
-                image, inventedBy, serveDay, instructions) {
+    constructor(id, title, readyInMinutes, popularity, vegetarian, vegan, glutenFree, hasViewed, isFavorite,
+                image, inventedBy, serveDay, servings, ingredients, equipments, instructions) {
         this.id = id;
         this.title = title;
         this.readyInMinutes = readyInMinutes;
@@ -10,13 +10,14 @@ class RecipeDto {
         this.glutenFree = glutenFree;
         this.hasViewed = hasViewed;
         this.isFavorite = isFavorite;
-        this.servings = servings;
         this.image = image;
         this.inventedBy = inventedBy;
         this.serveDay = serveDay;
+        this.servings = servings;
+        this.ingredients = ingredients;
+        this.equipments = equipments;
         this.instructions = instructions;
     }
 }
 
-// exports.RecipeDto = RecipeDto;
 module.exports = RecipeDto;
