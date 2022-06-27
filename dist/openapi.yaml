@@ -594,7 +594,7 @@ components:
         image:
           type: string
           format: path
-          example: 'https://learnenglishteens.britishcouncil.org/sites/teens/files/styles/article/public/rs7776_thinkstockphotos-856586464_1-low.jpg?itok=zHdfQ6Ij'
+          example: 'https://webknox.com/recipeImages/749013-556x370.jpg'
         popularity:
           type: integer
           example: 100
@@ -656,10 +656,6 @@ components:
         isFavorite:
           type: boolean
           example: True
-        servings:
-          type: integer
-          format: amount
-          example: 4
         # Family Page Data
         inventedBy:
           type: string
@@ -672,11 +668,23 @@ components:
         image:
           type: string
           format: path
-          example: 'https://learnenglishteens.britishcouncil.org/sites/teens/files/styles/article/public/rs7776_thinkstockphotos-856586464_1-low.jpg?itok=zHdfQ6Ij'
+          example: 'https://webknox.com/recipeImages/749013-556x370.jpg'
+        servings:
+          type: integer
+          format: amount
+          example: 4
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        equipments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Equipment'
         instructions:
           type: array
           items:
-            $ref: '#/components/schemas/Instruction'
+            $ref: '#/components/schemas/InstructionSet'
       required:
         - id
         - title
@@ -688,9 +696,10 @@ components:
         - hasViewed
         - isFavorite
         - image
-        - ingredients
-        - instructions
         - servings
+        - ingredients
+        - equipments
+        - instructions
     RecipeCreateDto:
       type: object
       properties:
@@ -713,7 +722,7 @@ components:
         image:
           type: string
           format: path
-          example: 'https://learnenglishteens.britishcouncil.org/sites/teens/files/styles/article/public/rs7776_thinkstockphotos-856586464_1-low.jpg?itok=zHdfQ6Ij'
+          example: 'https://webknox.com/recipeImages/749013-556x370.jpg'
         instructions:
           type: array
           items:
@@ -758,12 +767,29 @@ components:
         image:
           type: string
           format: path
-          example: 'https://learnenglishteens.britishcouncil.org/sites/teens/files/styles/article/public/rs7776_thinkstockphotos-856586464_1-low.jpg?itok=zHdfQ6Ij'
+          example: 'https://webknox.com/recipeImages/749013-556x370.jpg'
       required:
         - id
         - name
         - amount
         - amountType
+        - image
+    IngredientSmall:
+      properties:
+        id:
+          type: integer
+          format: number
+          example: 3
+        name:
+          type: string
+          example: Avocado
+        image:
+          type: string
+          format: path
+          example: 'https://webknox.com/recipeImages/749013-556x370.jpg'
+      required:
+        - id
+        - name
         - image
     IngredientInsertDto:
       properties:
@@ -791,7 +817,7 @@ components:
         ingredients:
           type: array
           items:
-            $ref: '#/components/schemas/Ingredient'
+            $ref: '#/components/schemas/IngredientSmall'
         number:
           type: integer
           example: 3
@@ -803,6 +829,18 @@ components:
         - ingredients
         - number
         - step
+    InstructionSet:
+      properties:
+        name:
+          type: string
+          example: 'cary sauce'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/Instruction'
+      required:
+        - name
+        - steps
     InstructionInsertDto:
       properties:
         equipments:
