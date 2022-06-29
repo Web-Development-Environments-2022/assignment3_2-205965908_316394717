@@ -10,8 +10,6 @@ class RecipeInsertDto {
         this.inventedBy = inventedBy;
         this.serveDay = serveDay;
         this.servings = servings;
-        this.ingredients = ingredients;
-        this.equipments = equipments;
         this.instructions = instructions;
     }
 }

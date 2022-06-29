@@ -66,7 +66,12 @@ async function searchRecipes(search_details, user_id) {
         params: params
     });
     let promises = data.data.results.map(async (x) => await convertToRecipePreview(x, user_id));
-    return Promise.all(promises);
+    return {
+        results: await Promise.all(promises),
+        offset: data.data.offset,
+        number: data.data.number,
+        totalResults: data.data.totalResults,
+    };
 }
 
 async function convertToRecipePreview(recipe, user_id) {

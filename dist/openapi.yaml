@@ -125,9 +125,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Recipe'
+                $ref: '#/components/schemas/RecipePreviewPages'
         '204':
           $ref: '#/components/responses/NoContent'
         '500':
@@ -624,6 +622,27 @@ components:
         - hasViewed
         - isFavorite
         - image
+    RecipePreviewPages:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipe'
+        offset:
+          type: integer
+          example: 20
+        number:
+          type: integer
+          example: 10
+        totalResults:
+          type: integer
+          example: 250
+      required:
+        - results
+        - offset
+        - number
+        - totalResults
     RecipePage:
       type: object
       properties:
