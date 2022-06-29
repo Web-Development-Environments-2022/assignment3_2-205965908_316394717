@@ -22,7 +22,7 @@ async function getFavoriteRecipes(user_id, skip = 0, limit = 10) {
 
 async function getFavoriteRecipesCount(user_id) {
     let query = `SELECT COUNT(recipe_id) as num FROM favorite_recipes WHERE user_id = ${user_id}`;
-    return await dbUtils.execQuery(query);
+    return (await dbUtils.execQuery(query))[0].num;
 }
 
 async function markAsViewed(user_id, recipe_id) {

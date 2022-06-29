@@ -35,7 +35,7 @@ router.post("/", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        let recipe = new RecipeInsertDto( //TODO: change to the new structure
+        let recipe = new RecipeInsertDto(
             req.body.title,
             req.body.readyInMinutes,
             req.body.vegetarian ? 1 : 0,
@@ -126,7 +126,7 @@ router.get("/favorites", async (req, res, next) => {
         limit = parseInt(req.params.limit || 10);
         if (!Number.isInteger(limit)) throw {status: 400, message: "Invalid limit"};
         const recipes_id = await user_utils.getFavoriteRecipes(user_id, skip, limit);
-        const recipes_count = (await user_utils.getFavoriteRecipesCount(user_id))[0].num;
+        const recipes_count = await user_utils.getFavoriteRecipesCount(user_id);
         let recipes_id_array = [];
         recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
         const results = await recipes_utils.getRecipesPreview(recipes_id_array, user_id);
@@ -149,8 +149,19 @@ router.get("/my", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
+        skip = parseInt(req.params.skip || 0);
+        if (!Number.isInteger(skip)) throw {status: 400, message: "Invalid skip"};
+        limit = parseInt(req.params.limit || 10);
+        if (!Number.isInteger(limit)) throw {status: 400, message: "Invalid limit"};
         const recipes = await recipes_db_utils.getMyRecipes(user_id);
-        res.status(200).send(recipes);
+        const recipes_count = await recipes_db_utils.getMyRecipesCount(user_id);
+        let ret = {
+            results: recipes,
+            offset: skip,
+            number: limit,
+            totalResults: recipes_count,
+        };
+        res.status(200).send(ret);
     } catch (error) {
         next(error);
     }
@@ -174,8 +185,19 @@ router.get("/family", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
+        skip = parseInt(req.params.skip || 0);
+        if (!Number.isInteger(skip)) throw {status: 400, message: "Invalid skip"};
+        limit = parseInt(req.params.limit || 10);
+        if (!Number.isInteger(limit)) throw {status: 400, message: "Invalid limit"};
         const recipes = await recipes_db_utils.getMyRecipes(user_id, true);
-        res.status(200).send(recipes);
+        const recipes_count = await recipes_db_utils.getMyRecipesCount(user_id, true);
+        let ret = {
+            results: recipes,
+            offset: skip,
+            number: limit,
+            totalResults: recipes_count,
+        };
+        res.status(200).send(ret);
     } catch (error) {
         next(error);
     }

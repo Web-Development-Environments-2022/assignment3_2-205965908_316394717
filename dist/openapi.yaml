@@ -166,15 +166,31 @@ paths:
         Get the recipes that the user added to the system
       security:
         - OAuth2: [ read ]
+      parameters:
+        - in: query
+          name: skip
+          description: number of records to skip for pagination
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+          example: 0
+        - in: query
+          name: limit
+          description: maximum number of records to return
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 30
+          example: 10
       responses:
         '200':
-          description: all my recipes results matching criteria
+          description: favorite recipes results matching criteria
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Recipe'
+                $ref: '#/components/schemas/RecipePreviewPages'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -190,15 +206,31 @@ paths:
         Get the recipes of the user family
       security:
         - OAuth2: [ read ]
+      parameters:
+        - in: query
+          name: skip
+          description: number of records to skip for pagination
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+          example: 0
+        - in: query
+          name: limit
+          description: maximum number of records to return
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 30
+          example: 10
       responses:
         '200':
-          description: all family recipes results matching criteria
+          description: favorite recipes results matching criteria
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Recipe'
+                $ref: '#/components/schemas/RecipePreviewPages'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':

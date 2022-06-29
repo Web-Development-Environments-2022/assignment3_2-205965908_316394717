@@ -43,6 +43,11 @@ async function getMyRecipes(user_id, family = false) {
     return recipes.map((x) => convertToRecipePreview(x));
 }
 
+async function getMyRecipesCount(user_id, family = false) {
+    let query_select_my_recipes = `SELECT COUNT(*) as num FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
+    return (await DButils.execQuery(query_select_my_recipes))[0].num;
+}
+
 async function getMySpecificRecipe(user_id, recipe_id) {
     let query_select_my_recipes = `SELECT * FROM recipes a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE user_id = '${user_id}' AND id = ${recipe_id}`;
     let recipeDbData = await DButils.execQuery(query_select_my_recipes);
@@ -160,4 +165,5 @@ function convertToRecipePreview(recipe) {
 
 exports.addRecipe = addRecipe;
 exports.getMySpecificRecipe = getMySpecificRecipe;
+exports.getMyRecipesCount = getMyRecipesCount;
 exports.getMyRecipes = getMyRecipes;
