@@ -38,13 +38,13 @@ router.post("/", async (req, res, next) => {
         let recipe = new RecipeInsertDto( //TODO: change to the new structure
             req.body.title,
             req.body.readyInMinutes,
-            req.body.vegetarian,
-            req.body.vegan,
-            req.body.glutenFree,
-            req.body.servings,
+            req.body.vegetarian ? 1 : 0,
+            req.body.vegan ? 1 : 0,
+            req.body.glutenFree ? 1 : 0,
             req.body.image,
             req.body.inventedBy,
             req.body.serveDay,
+            req.body.servings,
             req.body.instructions
         );
         if (!recipe.title || !recipe.readyInMinutes || recipe.vegetarian === undefined || recipe.vegan === undefined ||
@@ -121,12 +121,22 @@ router.get("/favorites", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        const recipes_id = await user_utils.getFavoriteRecipes(user_id);
+        skip = parseInt(req.params.skip || 0);
+        if (!Number.isInteger(skip)) throw {status: 400, message: "Invalid skip"};
+        limit = parseInt(req.params.limit || 10);
+        if (!Number.isInteger(limit)) throw {status: 400, message: "Invalid limit"};
+        const recipes_id = await user_utils.getFavoriteRecipes(user_id, skip, limit);
+        const recipes_count = (await user_utils.getFavoriteRecipesCount(user_id))[0].num;
         let recipes_id_array = [];
         recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
         const results = await recipes_utils.getRecipesPreview(recipes_id_array, user_id);
-        if (results.length === 0) res.status(204).send();
-        else res.status(200).send(results);
+        let ret = {
+            results: results,
+            offset: skip,
+            number: limit,
+            totalResults: recipes_count,
+        };
+        res.status(200).send(ret);
     } catch (error) {
         next(error);
     }

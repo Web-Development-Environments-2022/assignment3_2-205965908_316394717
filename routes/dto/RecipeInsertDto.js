@@ -1,6 +1,5 @@
 class RecipeInsertDto {
-    constructor(title, readyInMinutes, vegetarian, vegan, glutenFree, image, inventedBy, serveDay, servings,
-                ingredients, equipments, instructions) {
+    constructor(title, readyInMinutes, vegetarian, vegan, glutenFree, image, inventedBy, serveDay, servings, instructions) {
         this.title = title;
         this.readyInMinutes = readyInMinutes;
         this.vegetarian = vegetarian;

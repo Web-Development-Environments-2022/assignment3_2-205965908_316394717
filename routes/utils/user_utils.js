@@ -15,8 +15,13 @@ async function removeMarkAsFavorite(user_id, recipe_id) {
     await dbUtils.execQuery(query);
 }
 
-async function getFavoriteRecipes(user_id) {
-    let query = `SELECT recipe_id FROM favorite_recipes WHERE user_id = ${user_id}`;
+async function getFavoriteRecipes(user_id, skip = 0, limit = 10) {
+    let query = `SELECT recipe_id FROM favorite_recipes WHERE user_id = ${user_id} LIMIT ${limit} OFFSET ${skip}`;
+    return await dbUtils.execQuery(query);
+}
+
+async function getFavoriteRecipesCount(user_id) {
+    let query = `SELECT COUNT(recipe_id) as num FROM favorite_recipes WHERE user_id = ${user_id}`;
     return await dbUtils.execQuery(query);
 }
 
@@ -39,6 +44,7 @@ exports.getUser = getUser;
 exports.markAsFavorite = markAsFavorite;
 exports.removeMarkAsFavorite = removeMarkAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
+exports.getFavoriteRecipesCount = getFavoriteRecipesCount;
 exports.markAsViewed = markAsViewed;
 exports.getViewedRecipes = getViewedRecipes;
 exports.getLastViewedRecipes = getLastViewedRecipes;
