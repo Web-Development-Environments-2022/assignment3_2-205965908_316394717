@@ -8,29 +8,31 @@ const DButils = require("./DButils");
 
 async function addRecipe(user_id, recipe) {
     try {
-        let query_insert_recipe = `INSERT INTO recipes VALUES (0, ${user_id}, '${recipe.title}', ${recipe.readyInMinutes}, 
-    ${recipe.vegetarian}, ${recipe.vegan}, ${recipe.glutenFree}, ${recipe.servings}, '${recipe.image}')`;
-        await DButils.execQuery(query_insert_recipe);
-        let query_last_insert = "SELECT MAX(id) AS number FROM recipes";
-        let recipe_id = (await DButils.execQuery(query_last_insert))[0].number;
+        let queries = [];
+        queries.push(`INSERT INTO recipes
+                      VALUES (0, ${user_id}, '${recipe.title}', ${recipe.readyInMinutes}, ${recipe.vegetarian},
+                              ${recipe.vegan}, ${recipe.glutenFree}, ${recipe.servings}, '${recipe.image}')`);
+        queries.push("SELECT @newId:=MAX(id) FROM recipes");
 
         if (recipe.inventedBy && recipe.serveDay) {
-            let query_mark_as_family_recipe = `INSERT INTO family_recipe VALUES (${recipe_id}, '${recipe.inventedBy}', '${recipe.serveDay}')`;
-            await DButils.execQuery(query_mark_as_family_recipe);
+            queries.push(`INSERT INTO family_recipe
+                          VALUES (@newId, '${recipe.inventedBy}', '${recipe.serveDay}')`);
         }
         for (const instruction of recipe.instructions) {
-            let query_insert_instructions = `INSERT INTO instructions VALUES (${recipe_id}, ${instruction.number}, '${instruction.step}')`;
-            await DButils.execQuery(query_insert_instructions);
-
+            queries.push(`INSERT INTO instructions
+                          VALUES (@newId, ${instruction.number}, '${instruction.step}')`);
             for (const equipment of instruction.equipments) {
-                let query_insert_equipment = `INSERT INTO instructions_equipments VALUES (${equipment.id}, ${recipe_id}, ${instruction.number})`;
-                await DButils.execQuery(query_insert_equipment);
+                queries.push(`INSERT INTO instructions_equipments
+                              VALUES (${equipment.id}, @newId, ${instruction.number})`);
             }
             for (const ingredient of instruction.ingredients) {
-                let query_insert_ingredient = `INSERT INTO instructions_ingredients VALUES (${ingredient.id}, ${recipe_id}, ${instruction.number}, ${ingredient.amount}, '${ingredient.amountType}')`;
-                await DButils.execQuery(query_insert_ingredient);
+                queries.push(`INSERT INTO instructions_ingredients
+                              VALUES (${ingredient.id}, @newId, ${instruction.number}, ${ingredient.amount},
+                                      '${ingredient.amountType}')`);
             }
         }
+
+        await DButils.execMultiQuery(queries);
     } catch (e) {
         console.log(e.sqlMessage);
         throw e;
@@ -38,45 +40,65 @@ async function addRecipe(user_id, recipe) {
 }
 
 async function getMyRecipes(user_id, family = false) {
-    let query_select_my_recipes = `SELECT * FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
+    let query_select_my_recipes = `SELECT *
+                                   FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a
+                                            LEFT JOIN family_recipe b ON a.id = b.recipe_id
+                                   WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
     let recipes = await DButils.execQuery(query_select_my_recipes);
     return recipes.map((x) => convertToRecipePreview(x));
 }
 
 async function getMyRecipesCount(user_id, family = false) {
-    let query_select_my_recipes = `SELECT COUNT(*) as num FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
+    let query_select_my_recipes = `SELECT COUNT(*) as num
+                                   FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a
+                                            LEFT JOIN family_recipe b ON a.id = b.recipe_id
+                                   WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
     return (await DButils.execQuery(query_select_my_recipes))[0].num;
 }
 
 async function getMySpecificRecipe(user_id, recipe_id) {
-    let query_select_my_recipes = `SELECT * FROM recipes a LEFT JOIN family_recipe b ON a.id = b.recipe_id WHERE user_id = '${user_id}' AND id = ${recipe_id}`;
+    let query_select_my_recipes = `SELECT *
+                                   FROM recipes a
+                                            LEFT JOIN family_recipe b ON a.id = b.recipe_id
+                                   WHERE user_id = '${user_id}'
+                                     AND id = ${recipe_id}`;
     let recipeDbData = await DButils.execQuery(query_select_my_recipes);
     if (recipeDbData.length === 0) return undefined;
     let recipe = recipeDbData[0];
 
     // get equipments
-    let query_select_instruction_equipments = `SELECT a.number, a.step, c.id as equipment_id, 
-    c.name as equipment_name, c.image_path as equipment_image
-    FROM (SELECT * FROM instructions WHERE recipe_id = ${recipe.id}) a
-    LEFT JOIN instructions_equipments b
-    ON a.recipe_id = b.recipe_id AND a.number = b.number
-    JOIN equipments c
-    ON b.equipment_id = c.id`;
+    let query_select_instruction_equipments = `SELECT a.number,
+                                                      a.step,
+                                                      c.id         as equipment_id,
+                                                      c.name       as equipment_name,
+                                                      c.image_path as equipment_image
+                                               FROM (SELECT * FROM instructions WHERE recipe_id = ${recipe.id}) a
+                                                        LEFT JOIN instructions_equipments b
+                                                                  ON a.recipe_id = b.recipe_id AND a.number = b.number
+                                                        JOIN equipments c
+                                                             ON b.equipment_id = c.id`;
     let equipments_db = await DButils.execQuery(query_select_instruction_equipments);
 
     // get ingredients
-    let query_select_instruction_ingredients = `SELECT a.number, a.step, b.amount, b.amount_type, c.id as ingredient_id, 
-    c.name as ingredient_name, c.image_path as ingredient_image
-    FROM (SELECT * FROM instructions WHERE recipe_id = ${recipe.id}) a
-    LEFT JOIN instructions_ingredients b
-    ON a.recipe_id = b.recipe_id AND a.number = b.number
-    JOIN ingredients c
-    ON b.ingredient_id = c.id;`;
+    let query_select_instruction_ingredients = `SELECT a.number,
+                                                       a.step,
+                                                       b.amount,
+                                                       b.amount_type,
+                                                       c.id         as ingredient_id,
+                                                       c.name       as ingredient_name,
+                                                       c.image_path as ingredient_image
+                                                FROM (SELECT * FROM instructions WHERE recipe_id = ${recipe.id}) a
+                                                         LEFT JOIN instructions_ingredients b
+                                                                   ON a.recipe_id = b.recipe_id AND a.number = b.number
+                                                         JOIN ingredients c
+                                                              ON b.ingredient_id = c.id;`;
     let ingredients_db = await DButils.execQuery(query_select_instruction_ingredients);
     ///////
     // get all unique numbers
     const numbers_and_steps = new Set();
-    let select_number_and_step = `SELECT number, step FROM instructions WHERE recipe_id = ${recipe.id}`;
+    let select_number_and_step = `SELECT number, step
+                                  FROM instructions
+                                  WHERE recipe_id = ${recipe.id}`;
     let number_step_data = await DButils.execQuery(select_number_and_step);
     number_step_data.forEach((row) => {
         numbers_and_steps.add([row.number, row.step]);

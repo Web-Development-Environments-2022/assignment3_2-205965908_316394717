@@ -17,3 +17,20 @@ exports.execQuery = async function (query) {
   }
   return returnValue;
 };
+
+exports.execMultiQuery = async function (queries) {
+  const connection = await MySql.connection();
+  try {
+    await connection.query("START TRANSACTION");
+    for (const query of queries) {
+      await connection.query(query);
+    }
+    await connection.query("COMMIT");
+  } catch (err) {
+    await connection.query("ROLLBACK");
+    console.log("ROLLBACK at querySignUp", err);
+    throw err;
+  } finally {
+    await connection.release();
+  }
+};
