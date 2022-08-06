@@ -11,7 +11,7 @@ async function addRecipe(user_id, recipe) {
         let query_insert_recipe = `INSERT INTO recipes VALUES (0, ${user_id}, '${recipe.title}', ${recipe.readyInMinutes}, 
     ${recipe.vegetarian}, ${recipe.vegan}, ${recipe.glutenFree}, ${recipe.servings}, '${recipe.image}')`;
         await DButils.execQuery(query_insert_recipe);
-        let query_last_insert = "SELECT LAST_INSERT_ID() as number";
+        let query_last_insert = "SELECT MAX(id) AS number FROM recipes";
         let recipe_id = (await DButils.execQuery(query_last_insert))[0].number;
 
         if (recipe.inventedBy && recipe.serveDay) {
@@ -32,7 +32,7 @@ async function addRecipe(user_id, recipe) {
             }
         }
     } catch (e) {
-        console.log(e);
+        console.log(e.sqlMessage);
         throw e;
     }
 }
