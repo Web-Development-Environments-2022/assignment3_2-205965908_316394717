@@ -64,12 +64,16 @@ app.use(function (req, res, next) {
 // app.get("/alive", (req, res) => res.send("I'm alive"));
 
 // Routing
+const auth = require("./routes/auth");
+app.use(auth);
 const user = require("./routes/user");
 app.use("/users", user);
 const recipes = require("./routes/recipes");
 app.use("/recipes", recipes);
-const auth = require("./routes/auth");
-app.use(auth);
+const ingredients = require("./routes/ingredients");
+app.use("/ingredients", ingredients);
+const equipments = require("./routes/equipments");
+app.use("/equipments", equipments);
 
 // Default router
 app.use(function (err, req, res, next) {

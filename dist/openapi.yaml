@@ -535,6 +535,54 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  /equipments:
+    get:
+      tags:
+        - Equipments
+      summary: Get Equipments from system data
+      operationId: getEquipments
+      description: |
+        Get all the equipments form the system db for general purpose
+      security:
+        - OAuth2: [ read ]
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Equipment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ingredients:
+    get:
+      tags:
+        - Ingredients
+      summary: Get Ingredients from system data
+      operationId: getIngredients
+      description: |
+        Get all the ingredients form the system db for general purpose
+      security:
+        - OAuth2: [ read ]
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IngredientSmall'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 
 components:
   responses:
