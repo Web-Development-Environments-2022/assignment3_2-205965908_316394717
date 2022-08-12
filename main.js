@@ -25,14 +25,18 @@ app.use(
 app.use(express.urlencoded({extended: false})); // parse application/x-www-form-urlencoded
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 //local:
-// app.use(express.static(path.join(__dirname, "dist")));
+if (process.env.NODE_ENV === "development")
+    app.use(express.static(path.join(__dirname, "dist")));
 //remote:
-app.use(express.static(path.join(__dirname, '../assignment3-3-205965908_316394717/dist')));
+if (process.env.NODE_ENV === "production")
+    app.use(express.static(path.join(__dirname, '../assignment3-3-205965908_316394717/dist')));
 app.get("/", function (req, res) {
-    //remote:
-    res.sendFile(path.join(__dirname, '../assignment3-3-205965908_316394717/dist/index.html'));
     //local:
-    // res.sendFile(__dirname + "/index.html");
+    if (process.env.NODE_ENV === "development")
+        res.sendFile(__dirname + "/index.html");
+    //remote:
+    if (process.env.NODE_ENV === "production")
+        res.sendFile(path.join(__dirname, '../assignment3-3-205965908_316394717/dist/index.html'));
 });
 
 const corsConfig = {
@@ -47,7 +51,9 @@ app.options("*", cors(corsConfig));
 // cookie middleware
 app.use(function (req, res, next) {
     if (req.session && req.session.user_id) {
-        DButils.execQuery(`SELECT id FROM users WHERE id = ${req.session.user_id}`)
+        DButils.execQuery(`SELECT id
+                           FROM users
+                           WHERE id = ${req.session.user_id}`)
             .then((users) => {
                 if (users.length == 1) {
                     req.user_id = req.session.user_id;
@@ -83,14 +89,16 @@ app.use(function (err, req, res, next) {
 });
 
 const port = process.env.PORT || "80";
-// const server = app.listen(port, () => {
-//     console.log(`Server listen on port ${port}`);
-// });
-//
-// process.on("SIGINT", function () {
-//     if (server) {
-//         server.close(() => console.log("server closed"));
-//     }
-//     process.exit();
-// });
+if (process.env.NODE_ENV === "development") {
+    const server = app.listen(port, () => {
+        console.log(`Server listen on port ${port}`);
+    });
+
+    process.on("SIGINT", function () {
+        if (server) {
+            server.close(() => console.log("server closed"));
+        }
+        process.exit();
+    });
+}
 module.exports = app;
