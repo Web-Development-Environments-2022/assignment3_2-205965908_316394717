@@ -121,9 +121,9 @@ router.get("/favorites", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        skip = parseInt(req.params.skip || 0);
+        let skip = parseInt(req.query.skip || 0);
         if (!Number.isInteger(skip)) throw {status: 400, message: "Invalid skip"};
-        limit = parseInt(req.params.limit || 10);
+        let limit = parseInt(req.query.limit || 10);
         if (!Number.isInteger(limit)) throw {status: 400, message: "Invalid limit"};
         const recipes_id = await user_utils.getFavoriteRecipes(user_id, skip, limit);
         const recipes_count = await user_utils.getFavoriteRecipesCount(user_id);
@@ -149,11 +149,11 @@ router.get("/my", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        skip = parseInt(req.params.skip || 0);
+        let skip = parseInt(req.query.skip || 0);
         if (!Number.isInteger(skip)) throw {status: 400, message: "Invalid skip"};
-        limit = parseInt(req.params.limit || 10);
+        let limit = parseInt(req.query.limit || 10);
         if (!Number.isInteger(limit)) throw {status: 400, message: "Invalid limit"};
-        const recipes = await recipes_db_utils.getMyRecipes(user_id);
+        const recipes = await recipes_db_utils.getMyRecipes(user_id, skip, limit);
         const recipes_count = await recipes_db_utils.getMyRecipesCount(user_id);
         let ret = {
             results: recipes,
@@ -185,11 +185,11 @@ router.get("/family", async (req, res, next) => {
     try {
         const user_id = req.session.user_id;
         if (!user_id) throw {status: 401, message: "Need to login"};
-        skip = parseInt(req.params.skip || 0);
+        let skip = parseInt(req.query.skip || 0);
         if (!Number.isInteger(skip)) throw {status: 400, message: "Invalid skip"};
-        limit = parseInt(req.params.limit || 10);
+        let limit = parseInt(req.query.limit || 10);
         if (!Number.isInteger(limit)) throw {status: 400, message: "Invalid limit"};
-        const recipes = await recipes_db_utils.getMyRecipes(user_id, true);
+        const recipes = await recipes_db_utils.getMyRecipes(user_id, skip, limit, true);
         const recipes_count = await recipes_db_utils.getMyRecipesCount(user_id, true);
         let ret = {
             results: recipes,

@@ -39,11 +39,12 @@ async function addRecipe(user_id, recipe) {
     }
 }
 
-async function getMyRecipes(user_id, family = false) {
+async function getMyRecipes(user_id, skip = 0, limit = 10, family = false) {
     let query_select_my_recipes = `SELECT *
                                    FROM (SELECT * FROM recipes WHERE user_id = '${user_id}') a
                                             LEFT JOIN family_recipe b ON a.id = b.recipe_id
-                                   WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL`;
+                                   WHERE b.recipe_id IS ${family ? "NOT" : ""} NULL
+                                   LIMIT ${limit} OFFSET ${skip}`;
     let recipes = await DButils.execQuery(query_select_my_recipes);
     return recipes.map((x) => convertToRecipePreview(x));
 }
