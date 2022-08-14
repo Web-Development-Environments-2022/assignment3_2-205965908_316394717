@@ -1,17 +1,18 @@
 openapi: 3.0.3
 servers:
-  # Added by API Auto Mocking Plugin
   - description: LocalHost
-    url: http://localhost:80
+    url: http://127.0.0.1:80
+  - description: BGU Web Host
+    url: https://natanyagrandmarecipes.cs.bgu.ac.il/
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/Or-Fadlon/Assignment3.1API/1.0.0
 info:
   title: The recipes of Grandma and others API
   version: "1.0.0"
-  description: This is a simple API
+  description: This API is part of Assignment-3. Consume by "The recipes of Grandma and others" website.
   contact:
     name: Or Fadlon
-    url: http://www.example.com/support
+    url: https://natanyagrandmarecipes.cs.bgu.ac.il/
     email: fadlonor@post.bgu.ac.il
   license:
     name: Apache 2.0
@@ -40,7 +41,7 @@ paths:
               $ref: '#/components/schemas/RecipeCreateDto'
         description: Recipe item to add
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -165,7 +166,7 @@ paths:
       description: |
         Get the recipes that the user added to the system
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       parameters:
         - in: query
           name: skip
@@ -205,7 +206,7 @@ paths:
       description: |
         Get the recipes of the user family
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       parameters:
         - in: query
           name: skip
@@ -252,7 +253,7 @@ paths:
           schema:
             type: integer
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       responses:
         '200':
           description: get specific data about recipe that the user added to the system
@@ -278,7 +279,7 @@ paths:
       description: |
         Get specific recipe
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       parameters:
         - in: path
           name: recipeId
@@ -307,7 +308,7 @@ paths:
       description: |
         Get the recipes that the user watched before
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       responses:
         '200':
           description: all viewed recipes results matching criteria
@@ -333,7 +334,7 @@ paths:
       description: |
         Get user N recent viewed recipes
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       parameters:
         - in: path
           name: num
@@ -368,7 +369,7 @@ paths:
       description: |
         Get the recipes that the user save before
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       parameters:
         - in: query
           name: skip
@@ -471,7 +472,7 @@ paths:
         Get user card data containing all the needed data about the user
         for his personal page
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       responses:
         '200':
           description: success
@@ -500,7 +501,7 @@ paths:
             schema:
               $ref: '#/components/schemas/AddFavoriteDto'
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -526,7 +527,7 @@ paths:
           schema:
             type: integer
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       responses:
         '202':
           $ref: '#/components/responses/Accepted'
@@ -544,7 +545,7 @@ paths:
       description: |
         Get all the equipments form the system db for general purpose
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       responses:
         '200':
           description: success
@@ -568,7 +569,7 @@ paths:
       description: |
         Get all the ingredients form the system db for general purpose
       security:
-        - OAuth2: [ read ]
+        - ApiKeyAuth: [] 
       responses:
         '200':
           description: success
@@ -643,16 +644,10 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   securitySchemes:
-    OAuth2:
-      type: oauth2
-      flows:
-        authorizationCode:
-          authorizationUrl: https://example.com/oauth/authorize
-          tokenUrl: https://example.com/oauth/token
-          scopes:
-            read: Grants read access
-            write: Grants write access
-            admin: Grants access to admin operations
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: cookie       # can be "header", "query" or "cookie"
+      name: session  # name of the header, query parameter or cookie
   schemas:
     # Schema for error response body
     Error:
